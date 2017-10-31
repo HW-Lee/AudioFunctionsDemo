@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.htc.audiofunctionsdemo.MainActivity">
+
+    <TextView
+        android:id="@+id/app_info"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textStyle="normal|bold"
+        android:textSize="15sp"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/current_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="12"
+        android:orientation="vertical">
+        <com.htc.audiofunctionsdemo.DataView
+            android:id="@+id/signal_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.htc.audiofunctionsdemo.DataView
+            android:id="@+id/spectrum_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10" />
+
+        <TextView
+            android:id="@+id/record_console"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10" />
+    </LinearLayout>
+
+</LinearLayout>
