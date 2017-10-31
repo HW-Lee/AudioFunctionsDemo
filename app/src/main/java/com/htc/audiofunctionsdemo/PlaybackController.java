@@ -10,7 +10,7 @@ import android.util.Log;
 import java.io.File;
 import java.util.Random;
 
-public class PlaybackController {
+public class PlaybackController implements Controllable {
 
     public static final boolean MODE_OFFLOAD = true;
     public static final boolean MODE_NONOFFLOAD = false;
@@ -420,6 +420,7 @@ public class PlaybackController {
         }
     }
 
+    @Override
     public void destroy() {
         thread.setStop();
     }

@@ -10,7 +10,7 @@ import android.util.Log;
 import java.io.File;
 import java.lang.ref.WeakReference;
 
-public class RecordController {
+public class RecordController implements Controllable {
 
     enum FORMAT {
         FORMAT_16BIT, FORMAT_24BIT, FORMAT_WAV
@@ -352,9 +352,7 @@ public class RecordController {
         listenerCache = listener;
     }
 
-    /* **************************************
-        *        Destroy
-        * ***************************************/
+    @Override
     public void destroy() {
         thread.setStop();
     }

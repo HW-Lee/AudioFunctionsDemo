@@ -9,7 +9,7 @@ import android.util.Log;
 import java.io.File;
 import java.lang.ref.WeakReference;
 
-public class VOIPController {
+public class VOIPController implements Controllable {
 
     public class VOIPControllerThread extends Thread implements WatchDog.Monitor{
         private final static String TAG = "VOIPControllerThread";
@@ -337,6 +337,7 @@ public class VOIPController {
         listenerCache = listener;
     }
 
+    @Override
     public void destroy() {
         thread.setStop();
     }

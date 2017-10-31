@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private VOIPController mVOIPController;
     private MainHandler mHandler;
 
+    private ArrayList<WeakReference<Controllable>> mControllers;
+
     private static String[] PERMISSIONS_REQUIRED = {
             Manifest.permission.INTERNET,
             Manifest.permission.MODIFY_AUDIO_SETTINGS,
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private void initControllers() {
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mWatchDog = WatchDog.getInstance(MainActivity.this);
+        mControllers = new ArrayList<>(10);
 
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -177,10 +180,13 @@ public class MainActivity extends AppCompatActivity {
 
         mHandler = new MainHandler(this);
         mPlaybackController = new PlaybackController(mAudioManager, mHandler);
+        mControllers.add(new WeakReference<Controllable>(mPlaybackController));
         mRecordController = new RecordController(mAudioManager, mHandler);
+        mControllers.add(new WeakReference<Controllable>(mRecordController));
         mRecordController.setRecorderIOListener(listener);
 //        mVOIPController = new VOIPController(mAudioManager, mHandler);
 //        mVOIPController.setRecorderIOListener(listener);
+//        mControllers.add(new WeakReference<Controllable>(mVOIPController));
 
         mWatchDog.addMonitor("Class.PlaybackController", mPlaybackController.thread);
         mWatchDog.addMonitor("Class.RecordController", mRecordController.thread);
@@ -269,8 +275,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         this.unregisterReceiver(mBroadcastReceiver);
-        mPlaybackController.destroy();
-        mRecordController.destroy();
-//        mVOIPController.destroy();
+        for (WeakReference<Controllable> controller : mControllers) {
+            if (controller.get() != null) {
+                controller.get().destroy();
+            }
+        }
     }
 }
