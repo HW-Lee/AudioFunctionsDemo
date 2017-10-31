@@ -46,4 +46,26 @@ public class Constants {
         public static final int CIRCULAR_BUFFER_SIZE_MILLIS = -1;
         public static final int BUFFER_SIZE_MILLIS = 100;
     }
+    public static class VOIPConfig {
+        public static class TX {
+            public static final int SAMPLING_RATE = 8000;
+            public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
+            public static final int NUM_CHANNELS = 1;
+            public static final int ENCODING_CONFIG = AudioFormat.ENCODING_PCM_16BIT;
+            public static final int NORMALIZATION_FACTOR = 32768;
+            public static final int BYTES_PER_ELEMENT = 2; // 2 bytes in 16bit format
+            public static final int CIRCULAR_BUFFER_SIZE_MILLIS = 5000;
+            public static final int BUFFER_SIZE_MILLIS = 100;
+        }
+        public static class RX {
+            public static final int SAMPLING_RATE = 8000;
+            public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_STEREO;
+            public static final int NUM_CHANNELS = 2;
+            public static final int ENCODING_CONFIG = AudioFormat.ENCODING_PCM_16BIT;
+            public static final int NORMALIZATION_FACTOR = 32768;
+            public static final int BYTES_PER_ELEMENT = 2; // 2 bytes in 16bit format
+            public static final int OUTPUT_TONE_FREQ = 1000;
+            public static final int BUFFER_SIZE_MILLIS = 100;
+        }
+    }
 }

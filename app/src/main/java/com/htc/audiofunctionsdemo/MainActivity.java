@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private AudioManager mAudioManager;
     private PlaybackController mPlaybackController;
     private RecordController mRecordController;
+    private VOIPController mVOIPController;
     private MainHandler mHandler;
 
     private static String[] PERMISSIONS_REQUIRED = {
@@ -159,10 +160,7 @@ public class MainActivity extends AppCompatActivity {
             this.registerReceiver(mBroadcastReceiver, intentFilter);
         }
 
-        mHandler = new MainHandler(this);
-        mPlaybackController = new PlaybackController(mAudioManager, mHandler);
-        mRecordController = new RecordController(mAudioManager, mHandler);
-        mRecordController.setRecorderIOListener(new RecorderIO.RecorderIOListener() {
+        RecorderIO.RecorderIOListener listener = new RecorderIO.RecorderIOListener() {
             @Override
             public void onDataRead(byte[] data, int bytesPerSample, int numChannels) {
                 short[] signal_int16 = new short[data.length/2];
@@ -175,10 +173,18 @@ public class MainActivity extends AppCompatActivity {
                 double[] spectrum = FFT.transformAbs(signal);
                 updateDataView(signal, spectrum);
             }
-        });
+        };
+
+        mHandler = new MainHandler(this);
+        mPlaybackController = new PlaybackController(mAudioManager, mHandler);
+        mRecordController = new RecordController(mAudioManager, mHandler);
+        mRecordController.setRecorderIOListener(listener);
+//        mVOIPController = new VOIPController(mAudioManager, mHandler);
+//        mVOIPController.setRecorderIOListener(listener);
 
         mWatchDog.addMonitor("Class.PlaybackController", mPlaybackController.thread);
         mWatchDog.addMonitor("Class.RecordController", mRecordController.thread);
+//        mWatchDog.addMonitor("Class.VOIPController", mVOIPController.thread);
     }
 
     private void initUI() {
@@ -265,5 +271,6 @@ public class MainActivity extends AppCompatActivity {
         this.unregisterReceiver(mBroadcastReceiver);
         mPlaybackController.destroy();
         mRecordController.destroy();
+//        mVOIPController.destroy();
     }
 }
