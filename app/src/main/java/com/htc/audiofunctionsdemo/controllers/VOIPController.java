@@ -1,10 +1,14 @@
-package com.htc.audiofunctionsdemo;
+package com.htc.audiofunctionsdemo.controllers;
 
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+import com.htc.audiofunctionsdemo.utils.Constants;
+import com.htc.audiofunctionsdemo.utils.RecorderIO;
+import com.htc.audiofunctionsdemo.utils.WatchDog;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -23,15 +27,15 @@ public class VOIPController implements Controllable {
         private short[] data;
         private Thread playbackThread = null;
         private int sampleNum = 0;
-        private boolean isPlay = false;
-        private boolean isMute = false;
+        private boolean isPlaying = false;
+        private boolean isMuted = false;
 
         private AudioTrack mAudioTrack = null;
         private RecorderIO rec = null;
 
         Handler mRecordIOErrorHandle = new VOIPControllerThreadHandler(this);
 
-        private int mPhonemode;
+        private int mPhoneMode;
         final private VOIPController mParent;
         final private VOIPControllerThread wd_lock;
         private boolean exitPending;
@@ -45,7 +49,7 @@ public class VOIPController implements Controllable {
             Log.d(TAG, "mSize : " + String.valueOf(mSize));
 
             data = new short[mSize];
-            mPhonemode = AudioManager.MODE_NORMAL;
+            mPhoneMode = AudioManager.MODE_NORMAL;
 
             mAudioManager = m;
             mParent = parent;
@@ -59,9 +63,9 @@ public class VOIPController implements Controllable {
                 return;
             }
             Log.d(TAG, "VOIP playback START");
-            mPhonemode = AudioManager.MODE_IN_COMMUNICATION;
+            mPhoneMode = AudioManager.MODE_IN_COMMUNICATION;
             synchronized(this.wd_lock) {
-                mAudioManager.setMode(mPhonemode);
+                mAudioManager.setMode(mPhoneMode);
             }
 
             synchronized(this.wd_lock) {
@@ -71,8 +75,8 @@ public class VOIPController implements Controllable {
             }
 
             sampleNum = 0;
-            isPlay = true;
-            isMute = false;
+            isPlaying = true;
+            isMuted = false;
 
             synchronized(this.wd_lock) {
                 if (mAudioTrack != null) {
@@ -89,7 +93,7 @@ public class VOIPController implements Controllable {
                     @Override
                     public void run() {
                         //synchronized(lockChecker) {   /* watch dog functionality test */
-                        while (isPlay) {
+                        while (isPlaying) {
                             writeAudioData();
                         }
                         synchronized(lockChecker) {
@@ -124,7 +128,7 @@ public class VOIPController implements Controllable {
         private void writeAudioData() {
             for (int i = 0; i < mSize; i+=Constants.VOIPConfig.RX.NUM_CHANNELS) {
                 short tmpdata = 0;
-                if (!isMute) {
+                if (!isMuted) {
                     tmpdata = (short) (Math.sin((sampleNum * Math.PI*2) / SAMPLE_RATE * OUTPUT_FREQ) * Constants.VOIPConfig.RX.NORMALIZATION_FACTOR);
                 }
                 for (int j = 0; j < Constants.VOIPConfig.RX.NUM_CHANNELS; j++)
@@ -140,7 +144,7 @@ public class VOIPController implements Controllable {
 
         private void _muteRx() {
             if (mAudioTrack != null) {
-                isMute = mParent.mute;
+                isMuted = mParent.mute;
                 synchronized(this.wd_lock) {
                     mAudioTrack.setVolume(0.0f);
                 }
@@ -154,12 +158,12 @@ public class VOIPController implements Controllable {
             }
 
             Log.d(TAG, "Voip playback STOP");
-            mPhonemode = AudioManager.MODE_NORMAL;
+            mPhoneMode = AudioManager.MODE_NORMAL;
             synchronized(this.wd_lock) {
-                mAudioManager.setMode(mPhonemode);
+                mAudioManager.setMode(mPhoneMode);
             }
 
-            isPlay = false;
+            isPlaying = false;
             while (playbackThread.isAlive()) {
                 try {
                     Thread.sleep(100);

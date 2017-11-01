@@ -1,4 +1,4 @@
-package com.htc.audiofunctionsdemo;
+package com.htc.audiofunctionsdemo.utils;
 
 /**
  * Created by HWLee on 28/10/2017.

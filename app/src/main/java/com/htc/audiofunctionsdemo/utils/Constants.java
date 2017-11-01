@@ -1,4 +1,4 @@
-package com.htc.audiofunctionsdemo;
+package com.htc.audiofunctionsdemo.utils;
 
 import android.media.AudioFormat;
 

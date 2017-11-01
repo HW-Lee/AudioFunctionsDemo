@@ -1,4 +1,4 @@
-package com.htc.audiofunctionsdemo;
+package com.htc.audiofunctionsdemo.activities;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -15,6 +15,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+
+import com.htc.audiofunctionsdemo.R;
+import com.htc.audiofunctionsdemo.controllers.Controllable;
+import com.htc.audiofunctionsdemo.controllers.PlaybackController;
+import com.htc.audiofunctionsdemo.controllers.RecordController;
+import com.htc.audiofunctionsdemo.controllers.VOIPController;
+import com.htc.audiofunctionsdemo.utils.Constants;
+import com.htc.audiofunctionsdemo.utils.DataView;
+import com.htc.audiofunctionsdemo.utils.FFT;
+import com.htc.audiofunctionsdemo.utils.RecorderIO;
+import com.htc.audiofunctionsdemo.utils.WatchDog;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;

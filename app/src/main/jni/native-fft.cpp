@@ -8,12 +8,12 @@
 
 extern "C"
 {
-JNIEXPORT jstring JNICALL Java_com_htc_audiofunctionsdemo_FFT_getVersion(
+JNIEXPORT jstring JNICALL Java_com_htc_audiofunctionsdemo_utils_FFT_getVersion(
         JNIEnv *env, jobject thiz) {
     return env->NewStringUTF(FFT::getVersion().c_str());
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_com_htc_audiofunctionsdemo_FFT_transformAbs(
+JNIEXPORT jdoubleArray JNICALL Java_com_htc_audiofunctionsdemo_utils_FFT_transformAbs(
         JNIEnv *env, jobject thiz, jdoubleArray jsignal) {
     jsize size = env->GetArrayLength(jsignal);
     std::vector<complexdbl> spectrum(size);

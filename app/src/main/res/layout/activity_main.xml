@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.htc.audiofunctionsdemo.MainActivity">
+    tools:context="com.htc.audiofunctionsdemo.activities.MainActivity">
 
     <TextView
         android:id="@+id/app_info"
@@ -28,7 +28,7 @@
         android:layout_height="0dp"
         android:layout_weight="12"
         android:orientation="vertical">
-        <com.htc.audiofunctionsdemo.DataView
+        <com.htc.audiofunctionsdemo.utils.DataView
             android:id="@+id/signal_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -39,7 +39,7 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <com.htc.audiofunctionsdemo.DataView
+        <com.htc.audiofunctionsdemo.utils.DataView
             android:id="@+id/spectrum_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"

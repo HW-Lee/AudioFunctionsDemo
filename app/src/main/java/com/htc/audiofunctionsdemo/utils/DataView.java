@@ -1,4 +1,4 @@
-package com.htc.audiofunctionsdemo;
+package com.htc.audiofunctionsdemo.utils;
 
 import android.content.Context;
 import android.graphics.Canvas;

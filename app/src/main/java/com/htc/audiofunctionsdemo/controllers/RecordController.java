@@ -1,4 +1,4 @@
-package com.htc.audiofunctionsdemo;
+package com.htc.audiofunctionsdemo.controllers;
 
 import android.media.AudioManager;
 import android.media.MediaRecorder;
@@ -6,6 +6,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+import com.htc.audiofunctionsdemo.utils.Constants;
+import com.htc.audiofunctionsdemo.utils.RecorderIO;
+import com.htc.audiofunctionsdemo.utils.WatchDog;
 
 import java.io.File;
 import java.lang.ref.WeakReference;

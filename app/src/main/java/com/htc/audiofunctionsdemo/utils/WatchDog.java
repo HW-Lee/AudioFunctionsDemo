@@ -1,4 +1,4 @@
-package com.htc.audiofunctionsdemo;
+package com.htc.audiofunctionsdemo.utils;
 
 
 import android.content.DialogInterface;
@@ -7,6 +7,8 @@ import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
+
+import com.htc.audiofunctionsdemo.activities.MainActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
