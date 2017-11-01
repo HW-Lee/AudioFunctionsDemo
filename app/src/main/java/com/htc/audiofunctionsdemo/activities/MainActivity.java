@@ -136,15 +136,10 @@ public class MainActivity extends AppCompatActivity {
 
                     case Constants.AudioIntentNames.INTENT_RECORD_START:
                         idx = intent.getIntExtra("idx", 0);
-                        int xmin = intent.getIntExtra("sig_xmin", -1);
-                        int xmax = intent.getIntExtra("sig_xmax", -1);
-                        mSignalViewConfig.xmin = xmin;
-                        mSignalViewConfig.xmax = xmax;
-
-                        xmin = intent.getIntExtra("spt_xmin", -1);
-                        xmax = intent.getIntExtra("spt_xmax", -1);
-                        mSpectrumViewConfig.xmin = xmin;
-                        mSpectrumViewConfig.xmax = xmax;
+                        mSignalViewConfig.xmin = intent.getIntExtra("sig_xmin", -1);
+                        mSignalViewConfig.xmax = intent.getIntExtra("sig_xmax", -1);
+                        mSpectrumViewConfig.xmin = intent.getIntExtra("spt_xmin", -1);
+                        mSpectrumViewConfig.xmax = intent.getIntExtra("spt_xmax", -1);
                         if (mRecordController != null)
                             mRecordController.startwav(idx);
                         break;
@@ -157,10 +152,47 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case Constants.AudioIntentNames.INTENT_VOIP_START:
+                        mSignalViewConfig.xmin = intent.getIntExtra("sig_xmin", -1);
+                        mSignalViewConfig.xmax = intent.getIntExtra("sig_xmax", -1);
+                        mSpectrumViewConfig.xmin = intent.getIntExtra("spt_xmin", -1);
+                        mSpectrumViewConfig.xmax = intent.getIntExtra("spt_xmax", -1);
+                        if (mVOIPController != null)
+                            mVOIPController.start();
                         break;
                     case Constants.AudioIntentNames.INTENT_VOIP_MUTE_OUTPUT:
+                        idx = intent.getIntExtra("idx", 0);
+                        if (mVOIPController != null)
+                            mVOIPController.muteRx(idx);
                         break;
                     case Constants.AudioIntentNames.INTENT_VOIP_STOP:
+                        if (mVOIPController != null)
+                            mVOIPController.stop();
+                        break;
+
+                    case Constants.AudioIntentNames.INTENT_LOG_PRINT:
+                        String severity = intent.getStringExtra("sv");
+                        if (severity == null) severity = "d";
+                        String tag = intent.getStringExtra("tag");
+                        if (tag == null) tag = "";
+                        else tag = "::" + tag;
+                        tag = TAG + tag;
+                        String logText = intent.getStringExtra("log");
+                        if (logText != null) {
+                            switch (severity) {
+                                case "i":
+                                    Log.i(tag, logText);
+                                    break;
+                                case "e":
+                                    Log.e(tag, logText);
+                                    break;
+                                case "w":
+                                    Log.w(tag, logText);
+                                    break;
+                                case "d":
+                                    Log.d(tag, logText);
+                                    break;
+                            }
+                        }
                         break;
                 }
             }
@@ -195,13 +227,13 @@ public class MainActivity extends AppCompatActivity {
         mRecordController = new RecordController(mAudioManager, mHandler);
         mControllers.add(new WeakReference<Controllable>(mRecordController));
         mRecordController.setRecorderIOListener(listener);
-//        mVOIPController = new VOIPController(mAudioManager, mHandler);
-//        mVOIPController.setRecorderIOListener(listener);
-//        mControllers.add(new WeakReference<Controllable>(mVOIPController));
+        mVOIPController = new VOIPController(mAudioManager, mHandler);
+        mVOIPController.setRecorderIOListener(listener);
+        mControllers.add(new WeakReference<Controllable>(mVOIPController));
 
         mWatchDog.addMonitor("Class.PlaybackController", mPlaybackController.thread);
         mWatchDog.addMonitor("Class.RecordController", mRecordController.thread);
-//        mWatchDog.addMonitor("Class.VOIPController", mVOIPController.thread);
+        mWatchDog.addMonitor("Class.VOIPController", mVOIPController.thread);
     }
 
     private void initUI() {
@@ -212,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
         mRecordConsole = (TextView) findViewById(R.id.record_console);
         mSignalViewConfig = new DataViewConfig();
         mSpectrumViewConfig = new DataViewConfig();
+        mSignalView.setGridSlotsY(4);
+        mSignalView.setGridSlotsX(10);
         mSpectrumView.setGridSlotsX(10);
     }
 
@@ -252,13 +286,16 @@ public class MainActivity extends AppCompatActivity {
         mSignalView.plot(signalToPlot);
         mSpectrumView.plot(spectrumToPlot);
 
+        double detectedFreq = (double) maxIdx * samplingRate / spectrum.length;
+        detectedFreq = Math.round(detectedFreq * 100) / 100.0;
+
         Message msg = mHandler.obtainMessage();
         msg.what = R.id.record_console;
         msg.obj =  "Signal show        [" + mSignalViewConfig.xmin + "~" + mSignalViewConfig.xmax + " ms]";
         msg.obj += "\n";
         msg.obj += "Spectrum show [" + mSpectrumViewConfig.xmin + "~" + mSpectrumViewConfig.xmax + " Hz]";
         msg.obj += "\n";
-        msg.obj += "Detected Tone                   : " + (double) maxIdx * samplingRate / spectrum.length + " Hz";
+        msg.obj += "Detected Tone                   : " + detectedFreq + " Hz";
         msg.obj += "\n";
         msg.obj += "Corresponded Amplitude: " + 20*Math.log10(maxValue) + " dB";
         msg.sendToTarget();

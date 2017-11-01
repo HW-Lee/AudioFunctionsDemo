@@ -128,15 +128,17 @@ public class VOIPController implements Controllable {
         private void writeAudioData() {
             for (int i = 0; i < mSize; i+=Constants.VOIPConfig.RX.NUM_CHANNELS) {
                 short tmpdata = 0;
+                double angularFreq = ((double) sampleNum * Math.PI*2) / SAMPLE_RATE * OUTPUT_FREQ;
                 if (!isMuted) {
-                    tmpdata = (short) (Math.sin((sampleNum * Math.PI*2) / SAMPLE_RATE * OUTPUT_FREQ) * Constants.VOIPConfig.RX.NORMALIZATION_FACTOR);
+                    tmpdata = (short) (Math.sin(angularFreq) * (Constants.VOIPConfig.RX.NORMALIZATION_FACTOR-1));
                 }
                 for (int j = 0; j < Constants.VOIPConfig.RX.NUM_CHANNELS; j++)
                     data[i + j] = tmpdata;
                 sampleNum++;
                 // Log.d(TAG, String.valueOf(data[i]));
             }
-            sampleNum = sampleNum % SAMPLE_RATE;
+            if (sampleNum >= SAMPLE_RATE)
+                sampleNum -= SAMPLE_RATE;
             mAudioTrack.write(data, 0, mSize);
             if (mAudioTrack.getPlayState() != AudioTrack.PLAYSTATE_PLAYING)
                 mAudioTrack.play();
@@ -251,7 +253,7 @@ public class VOIPController implements Controllable {
         }
     }
 
-    final public static String TAG = "SSD_AAT_VOIP";
+    private final static String TAG = "VOIPController";
     private AudioManager mAudioManager = null;
     public VOIPControllerThread thread;
 
@@ -284,7 +286,7 @@ public class VOIPController implements Controllable {
     public void start() {
         //start_name("sdcard/Music/record_voip");
         synchronized (this) { // class VOIP lock
-            path = "sdcard/Music/record_voip";
+            path = Constants.VOIPConfig.TX.PCM_DUMP_FILENAME;
             command = CMD_START;
         }
     }
@@ -316,14 +318,11 @@ public class VOIPController implements Controllable {
     }
 
     public void deleteFile() {
-        String filename;
-
-        if (path.equals(""))
-            path = "sdcard/Music/record_voip";
-        filename = path + ".wav";
-
-        File file = new File(filename);
-        file.delete();
+        if (path.equals("")) {
+            path = Constants.VOIPConfig.TX.PCM_DUMP_FILENAME;
+            File file = new File(path);
+            file.delete();
+        }
     }
 
     public int getPhonemode(){
