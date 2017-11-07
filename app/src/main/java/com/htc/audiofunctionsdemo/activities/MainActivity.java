@@ -65,10 +65,6 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
     };
 
     @Override
@@ -194,6 +190,12 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         break;
+                    case Constants.AudioIntentNames.INTENT_PRINT_PROPERTIES:
+                        String logtext = "";
+                        logtext += System.getProperty(Constants.AudioRecordConfig.DETECTED_TONE_FREQ_PROP) + ",";
+                        logtext += System.getProperty(Constants.AudioRecordConfig.DETECTED_TONE_AMP_PROP);
+                        Log.i(TAG + "::properties", logtext);
+                        break;
                 }
             }
         };
@@ -288,6 +290,10 @@ public class MainActivity extends AppCompatActivity {
 
         double detectedFreq = (double) maxIdx * samplingRate / spectrum.length;
         detectedFreq = Math.round(detectedFreq * 100) / 100.0;
+        double detectedAmp = 20*Math.log10(maxValue);
+        detectedAmp = Math.round(detectedAmp * 100) / 100.0;
+        System.setProperty(Constants.AudioRecordConfig.DETECTED_TONE_FREQ_PROP, "" + detectedFreq);
+        System.setProperty(Constants.AudioRecordConfig.DETECTED_TONE_AMP_PROP, "" + detectedAmp);
 
         Message msg = mHandler.obtainMessage();
         msg.what = R.id.record_console;
@@ -297,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
         msg.obj += "\n";
         msg.obj += "Detected Tone                   : " + detectedFreq + " Hz";
         msg.obj += "\n";
-        msg.obj += "Corresponded Amplitude: " + 20*Math.log10(maxValue) + " dB";
+        msg.obj += "Corresponded Amplitude: " + detectedAmp + " dB";
         msg.sendToTarget();
     }
 

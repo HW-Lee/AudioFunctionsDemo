@@ -26,6 +26,7 @@ public class Constants {
         public static final String INTENT_VOIP_MUTE_OUTPUT = "audio.htc.com.intent.voip.mute.output";
 
         public static final String INTENT_LOG_PRINT = "audio.htc.com.intent.log.print";
+        public static final String INTENT_PRINT_PROPERTIES = "audio.htc.com.intent.print.properties";
 
         public static final String[] INTENT_NAMES = {
                 INTENT_PLAYBACK_START_NONOFFLOAD,
@@ -39,7 +40,8 @@ public class Constants {
                 INTENT_VOIP_START,
                 INTENT_VOIP_STOP,
                 INTENT_VOIP_MUTE_OUTPUT,
-                INTENT_LOG_PRINT
+                INTENT_LOG_PRINT,
+                INTENT_PRINT_PROPERTIES
         };
     }
     public static class AudioRecordConfig {
@@ -51,6 +53,8 @@ public class Constants {
         public static final int BYTES_PER_ELEMENT = 2; // 2 bytes in 16bit format
         public static final int CIRCULAR_BUFFER_SIZE_MILLIS = 5000;
         public static final int BUFFER_SIZE_MILLIS = 100;
+        public static final String DETECTED_TONE_FREQ_PROP = "audio.htc.com.prop.detected.freq";
+        public static final String DETECTED_TONE_AMP_PROP = "audio.htc.com.prop.detected.amp";
     }
     public static class VOIPConfig {
         public static class TX {
