@@ -181,6 +181,12 @@ public class VOIPController implements Controllable {
             rec = null;
         }
 
+        private void _switchToSpeaker() {
+            synchronized (this.wd_lock) {
+                mAudioManager.setSpeakerphoneOn(true);
+            }
+        }
+
         void _transTxToWav() {
             rec.transTxToWav();
         }
@@ -223,6 +229,8 @@ public class VOIPController implements Controllable {
                     case CMD_STOP:
                         this._stop();
                         break;
+                    case CMD_SWITCH_SPKR:
+                        this._switchToSpeaker();
                 }
                 cmd = CMD_NONE;
             }
@@ -266,6 +274,7 @@ public class VOIPController implements Controllable {
     final private int CMD_STOP = 2;
     final private int CMD_MUTE_RX = 3;
     final private int CMD_TX_TO_WAV = 4;
+    final private int CMD_SWITCH_SPKR = 5;
     private int command;
     private boolean mute;
     private RecorderIO.RecorderIOListener listenerCache;
@@ -308,6 +317,12 @@ public class VOIPController implements Controllable {
         synchronized (this) { // class VOIP lock
             this.mute = (mute != 0);
             command = CMD_MUTE_RX;
+        }
+    }
+
+    public void switchToSpeaker() {
+        synchronized (this) {
+            command = CMD_SWITCH_SPKR;
         }
     }
 

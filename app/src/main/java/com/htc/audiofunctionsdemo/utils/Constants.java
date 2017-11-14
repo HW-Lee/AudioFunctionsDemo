@@ -24,6 +24,7 @@ public class Constants {
         public static final String INTENT_VOIP_START = "audio.htc.com.intent.voip.start";
         public static final String INTENT_VOIP_STOP = "audio.htc.com.intent.voip.stop";
         public static final String INTENT_VOIP_MUTE_OUTPUT = "audio.htc.com.intent.voip.mute.output";
+        public static final String INTENT_VOIP_SWITCH_SPKR = "audio.htc.com.intent.voip.switch.speaker";
 
         public static final String INTENT_LOG_PRINT = "audio.htc.com.intent.log.print";
         public static final String INTENT_PRINT_PROPERTIES = "audio.htc.com.intent.print.properties";
