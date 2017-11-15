@@ -59,12 +59,12 @@ public class Constants {
     }
     public static class VOIPConfig {
         public static class TX {
-            public static final int SAMPLING_RATE = 8000;
-            public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
-            public static final int NUM_CHANNELS = 1;
-            public static final int ENCODING_CONFIG = AudioFormat.ENCODING_PCM_16BIT;
-            public static final int NORMALIZATION_FACTOR = 32768;
-            public static final int BYTES_PER_ELEMENT = 2; // 2 bytes in 16bit format
+            public static final int SAMPLING_RATE = AudioRecordConfig.SAMPLING_RATE;
+            public static final int CHANNEL_CONFIG = AudioRecordConfig.CHANNEL_CONFIG;
+            public static final int NUM_CHANNELS = AudioRecordConfig.NUM_CHANNELS;
+            public static final int ENCODING_CONFIG = AudioRecordConfig.ENCODING_CONFIG;
+            public static final int NORMALIZATION_FACTOR = AudioRecordConfig.NORMALIZATION_FACTOR;
+            public static final int BYTES_PER_ELEMENT = AudioRecordConfig.BYTES_PER_ELEMENT; // 2 bytes in 16bit format
             public static final int CIRCULAR_BUFFER_SIZE_MILLIS = 5000;
             public static final int BUFFER_SIZE_MILLIS = 100;
             public static final String PCM_DUMP_FILENAME = SDCARD_PATH + "/Music/record_voip";
