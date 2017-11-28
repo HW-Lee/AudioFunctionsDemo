@@ -41,6 +41,7 @@ public class Constants {
                 INTENT_VOIP_START,
                 INTENT_VOIP_STOP,
                 INTENT_VOIP_MUTE_OUTPUT,
+                INTENT_VOIP_SWITCH_SPKR,
                 INTENT_LOG_PRINT,
                 INTENT_PRINT_PROPERTIES
         };

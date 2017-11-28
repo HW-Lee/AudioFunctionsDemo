@@ -183,7 +183,7 @@ public class VOIPController implements Controllable {
 
         private void _switchToSpeaker() {
             synchronized (this.wd_lock) {
-                mAudioManager.setSpeakerphoneOn(true);
+                mAudioManager.setSpeakerphoneOn(useSpeaker);
             }
         }
 
@@ -277,6 +277,7 @@ public class VOIPController implements Controllable {
     final private int CMD_SWITCH_SPKR = 5;
     private int command;
     private boolean mute;
+    private boolean useSpeaker = false;
     private RecorderIO.RecorderIOListener listenerCache;
     private Handler commHandler;
 
@@ -320,9 +321,10 @@ public class VOIPController implements Controllable {
         }
     }
 
-    public void switchToSpeaker() {
+    public void switchToSpeaker(boolean useSpeaker) {
         synchronized (this) {
             command = CMD_SWITCH_SPKR;
+            this.useSpeaker = useSpeaker;
         }
     }
 

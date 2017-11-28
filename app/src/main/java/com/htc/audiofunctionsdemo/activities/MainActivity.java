@@ -161,8 +161,10 @@ public class MainActivity extends AppCompatActivity {
                             mVOIPController.muteRx(idx);
                         break;
                     case Constants.AudioIntentNames.INTENT_VOIP_SWITCH_SPKR:
-                        if (mVOIPController != null)
-                            mVOIPController.switchToSpeaker();
+                        if (mVOIPController != null) {
+                            boolean useSpeaker = intent.getBooleanExtra("use", false);
+                            mVOIPController.switchToSpeaker(useSpeaker);
+                        }
                         break;
                     case Constants.AudioIntentNames.INTENT_VOIP_STOP:
                         if (mVOIPController != null)
