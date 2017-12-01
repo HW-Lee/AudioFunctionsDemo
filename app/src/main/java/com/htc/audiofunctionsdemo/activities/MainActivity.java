@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private class DataViewConfig {
         int xmin = -1;
         int xmax = -1;
+        boolean needRefreshed = true;
     }
 
     private TextView mRecordConsole;
@@ -202,6 +203,11 @@ public class MainActivity extends AppCompatActivity {
                         logtext += System.getProperty(Constants.AudioRecordConfig.DETECTED_TONE_AMP_PROP);
                         Log.i(TAG + "::properties", logtext);
                         break;
+                    case Constants.AudioIntentNames.INTENT_DATA_VIEW_SETTINGS:
+                        boolean refresh = intent.getBooleanExtra("refresh", true);
+                        mSignalViewConfig.needRefreshed = refresh;
+                        mSpectrumViewConfig.needRefreshed = refresh;
+                        break;
                 }
             }
         };
@@ -291,8 +297,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        mSignalView.plot(signalToPlot);
-        mSpectrumView.plot(spectrumToPlot);
+        if (mSignalViewConfig.needRefreshed)
+            mSignalView.plot(signalToPlot);
+        if (mSpectrumViewConfig.needRefreshed)
+            mSpectrumView.plot(spectrumToPlot);
 
         double detectedFreq = (double) maxIdx * samplingRate / spectrum.length;
         detectedFreq = Math.round(detectedFreq * 100) / 100.0;
@@ -301,16 +309,18 @@ public class MainActivity extends AppCompatActivity {
         System.setProperty(Constants.AudioRecordConfig.DETECTED_TONE_FREQ_PROP, "" + detectedFreq);
         System.setProperty(Constants.AudioRecordConfig.DETECTED_TONE_AMP_PROP, "" + detectedAmp);
 
-        Message msg = mHandler.obtainMessage();
-        msg.what = R.id.record_console;
-        msg.obj =  "Signal show        [" + mSignalViewConfig.xmin + "~" + mSignalViewConfig.xmax + " ms]";
-        msg.obj += "\n";
-        msg.obj += "Spectrum show [" + mSpectrumViewConfig.xmin + "~" + mSpectrumViewConfig.xmax + " Hz]";
-        msg.obj += "\n";
-        msg.obj += "Detected Tone                   : " + detectedFreq + " Hz";
-        msg.obj += "\n";
-        msg.obj += "Corresponded Amplitude: " + detectedAmp + " dB";
-        msg.sendToTarget();
+        if (mSignalViewConfig.needRefreshed && mSpectrumViewConfig.needRefreshed) {
+            Message msg = mHandler.obtainMessage();
+            msg.what = R.id.record_console;
+            msg.obj = "Signal show        [" + mSignalViewConfig.xmin + "~" + mSignalViewConfig.xmax + " ms]";
+            msg.obj += "\n";
+            msg.obj += "Spectrum show [" + mSpectrumViewConfig.xmin + "~" + mSpectrumViewConfig.xmax + " Hz]";
+            msg.obj += "\n";
+            msg.obj += "Detected Tone                   : " + detectedFreq + " Hz";
+            msg.obj += "\n";
+            msg.obj += "Corresponded Amplitude: " + detectedAmp + " dB";
+            msg.sendToTarget();
+        }
     }
 
     private static class MainHandler extends Handler {

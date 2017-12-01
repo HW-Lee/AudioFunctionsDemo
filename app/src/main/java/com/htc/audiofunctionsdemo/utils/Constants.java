@@ -28,6 +28,7 @@ public class Constants {
 
         public static final String INTENT_LOG_PRINT = "audio.htc.com.intent.log.print";
         public static final String INTENT_PRINT_PROPERTIES = "audio.htc.com.intent.print.properties";
+        public static final String INTENT_DATA_VIEW_SETTINGS = "audio.htc.com.intent.dataview";
 
         public static final String[] INTENT_NAMES = {
                 INTENT_PLAYBACK_START_NONOFFLOAD,
@@ -43,7 +44,8 @@ public class Constants {
                 INTENT_VOIP_MUTE_OUTPUT,
                 INTENT_VOIP_SWITCH_SPKR,
                 INTENT_LOG_PRINT,
-                INTENT_PRINT_PROPERTIES
+                INTENT_PRINT_PROPERTIES,
+                INTENT_DATA_VIEW_SETTINGS
         };
     }
     public static class AudioRecordConfig {
