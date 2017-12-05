@@ -25,7 +25,7 @@ public class DataView extends View {
     private int mGridSlotsX;
     private int mGridSlotsY;
 
-    private ArrayList<Double> mDataBuffer;
+    private final ArrayList<Double> mDataBuffer = new ArrayList<>(0);;
 
     public DataView(Context context) {
         super(context);
@@ -51,7 +51,6 @@ public class DataView extends View {
         mBgColor = Color.BLACK;
         mGridPaint = new Paint();
         mDataPaint = new Paint();
-        mDataBuffer = new ArrayList<>(0);
 
         mGridPaint.setStrokeWidth(5.0f);
         mGridPaint.setColor(Color.GRAY);
@@ -80,8 +79,10 @@ public class DataView extends View {
     }
 
     public void plot(Collection<? extends Double> data) {
-        mDataBuffer.clear();
-        mDataBuffer.addAll(data);
+        synchronized (mDataBuffer) {
+            mDataBuffer.clear();
+            mDataBuffer.addAll(data);
+        }
 
         this.postInvalidate();
     }
@@ -116,13 +117,15 @@ public class DataView extends View {
             }
         }
 
-        for (int i = 0; i < mDataBuffer.size()-1; i++) {
-            float startX = (float) viewWidth/mDataBuffer.size() * i;
-            float endX = (float) viewWidth/mDataBuffer.size() * (i+1);
-            float startY = this.convertToViewPosition(mDataBuffer.get(i), viewHeight);
-            float endY = this.convertToViewPosition(mDataBuffer.get(i+1), viewHeight);
+        synchronized (mDataBuffer) {
+            for (int i = 0; i < mDataBuffer.size() - 1; i++) {
+                float startX = (float) viewWidth / mDataBuffer.size() * i;
+                float endX = (float) viewWidth / mDataBuffer.size() * (i + 1);
+                float startY = this.convertToViewPosition(mDataBuffer.get(i), viewHeight);
+                float endY = this.convertToViewPosition(mDataBuffer.get(i + 1), viewHeight);
 
-            canvas.drawLine(startX, startY, endX, endY, mDataPaint);
+                canvas.drawLine(startX, startY, endX, endY, mDataPaint);
+            }
         }
     }
 }
