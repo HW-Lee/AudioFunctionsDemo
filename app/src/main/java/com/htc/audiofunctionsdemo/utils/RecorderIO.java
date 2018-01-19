@@ -18,11 +18,12 @@ import java.io.IOException;
 public class RecorderIO extends Thread {
     private static final String TAG = "RecorderIO";
     private static final int RECORDER_BPP = 16;
-    private static final int RECORDER_SAMPLERATE = Constants.AudioRecordConfig.SAMPLING_RATE;
-    private static final int RECORDER_CHANNELS = Constants.AudioRecordConfig.CHANNEL_CONFIG;
-    private static final int NUM_CHANNELS = Constants.AudioRecordConfig.NUM_CHANNELS;
-    private static final int RECORDER_AUDIO_ENCODING = Constants.AudioRecordConfig.ENCODING_CONFIG;
-    private static final int BytesPerElement = Constants.AudioRecordConfig.BYTES_PER_ELEMENT; // 2 bytes in 16bit format
+
+    private int mSampleRate;
+    private int mChannelConfig;
+    private int mNumChannels;
+    private int mEncodingConfig;
+    private int mBytesPerElement;
 
     private String filePcmPath = Environment.getExternalStorageDirectory() + "/Music/record.pcm";
     private String fileWavPath = Environment.getExternalStorageDirectory() + "/Music/record.wav";
@@ -43,7 +44,7 @@ public class RecorderIO extends Thread {
 
     private BufferedOutputStream f = null;
     private CircualrBuffer buf = null;
-    private RecorderIOListener mListerner = null;
+    private RecorderIOListener mListener = null;
 
     public RecorderIO() {
         duration = 0;
@@ -53,6 +54,10 @@ public class RecorderIO extends Thread {
     }
 
     public RecorderIO(int ms, int bufMillis) {
+        this(ms, bufMillis, false);
+    }
+
+    public RecorderIO(int ms, int bufMillis, boolean isHD) {
         if (ms > 0)
             duration = ms;
         if (bufMillis > 0)
@@ -60,10 +65,24 @@ public class RecorderIO extends Thread {
         createRecordContent();
         excep = null;
         errorMsg = "";
+
+        if (isHD) {
+            mSampleRate = Constants.AudioRecordConfig.SAMPLING_RATE_HD;
+            mChannelConfig = Constants.AudioRecordConfig.CHANNEL_CONFIG_HD;
+            mNumChannels = Constants.AudioRecordConfig.NUM_CHANNELS_HD;
+            mEncodingConfig = Constants.AudioRecordConfig.ENCODING_CONFIG_HD;
+            mBytesPerElement = Constants.AudioRecordConfig.BYTES_PER_ELEMENT_HD;
+        } else {
+            mSampleRate = Constants.AudioRecordConfig.SAMPLING_RATE;
+            mChannelConfig = Constants.AudioRecordConfig.CHANNEL_CONFIG;
+            mNumChannels = Constants.AudioRecordConfig.NUM_CHANNELS;
+            mEncodingConfig = Constants.AudioRecordConfig.ENCODING_CONFIG;
+            mBytesPerElement = Constants.AudioRecordConfig.BYTES_PER_ELEMENT;
+        }
     }
 
     public void setRecorderIOListener(RecorderIOListener listener) {
-        mListerner = listener;
+        mListener = listener;
     }
 
     private void createRecordContent()
@@ -76,15 +95,15 @@ public class RecorderIO extends Thread {
                 int limit = -1;
 
                 android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-                mBufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE,
-                        RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
-                if (mBufferMillis*RECORDER_SAMPLERATE/1000*NUM_CHANNELS*BytesPerElement > mBufferSize)
-                    mBufferSize = mBufferMillis*RECORDER_SAMPLERATE/1000*NUM_CHANNELS*BytesPerElement;
+                mBufferSize = AudioRecord.getMinBufferSize(mSampleRate,
+                        mChannelConfig, mEncodingConfig);
+                if (mBufferMillis*mSampleRate/1000*mNumChannels*mBytesPerElement > mBufferSize)
+                    mBufferSize = mBufferMillis*mSampleRate/1000*mNumChannels*mBytesPerElement;
                 Log.d(TAG, "thread start, read buffer size=" + mBufferSize);
                 data = new byte[mBufferSize];
 
                 if (duration > 0) {
-                    limit = duration / 1000 * RECORDER_SAMPLERATE * 2 / mBufferSize;
+                    limit = duration / 1000 * mSampleRate * 2 / mBufferSize;
                     Log.d(TAG, "circualr buffer size " + limit);
                     buf = new CircualrBuffer(limit, mBufferSize);
                 }
@@ -103,15 +122,24 @@ public class RecorderIO extends Thread {
 
                 try {
                     mRecorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT,
-                            RECORDER_SAMPLERATE, RECORDER_CHANNELS,
-                            RECORDER_AUDIO_ENCODING, mBufferSize);
+                            mSampleRate, mChannelConfig,
+                            mEncodingConfig, mBufferSize);
+                }
+                catch(Exception e) {
+                    Log.d(TAG, "Exception is got on the initialization of AudioRecord");
+                    e.printStackTrace();
+                    excep = e;
+                }
+                try {
                     ret = mRecorder.getState();
+
                     if (ret == AudioRecord.STATE_UNINITIALIZED) {
                         Log.d(TAG, "AudioRecord init fail!");
                         errorMsg = "AudioRecord init fail";
                         isTerminated = true;
+                    } else {
+                        mRecorder.startRecording();
                     }
-                    mRecorder.startRecording();
 
                     while(!isTerminated) {
                         ret = mRecorder.read(data, 0, mBufferSize);
@@ -120,8 +148,8 @@ public class RecorderIO extends Thread {
                             errorMsg = "AudioRecord read data error";
                             isTerminated = true;
                         } else {
-                            if (mListerner != null)
-                                mListerner.onDataRead(data, BytesPerElement, NUM_CHANNELS);
+                            if (mListener != null)
+                                mListener.onDataRead(data, mBytesPerElement, mNumChannels);
                             if(limit != -1 && buf != null){
                                 buf.add(data);
                             } else if (f != null){
@@ -131,7 +159,7 @@ public class RecorderIO extends Thread {
                         Thread.sleep(20);
                     }
                 }
-                catch(InterruptedException | IOException e) {
+                catch(Exception e) {
                     Log.d(TAG, "thread got exception, stop recorderIO thread");
                     e.printStackTrace();
                     excep = e;
@@ -156,8 +184,13 @@ public class RecorderIO extends Thread {
 
     private void doWorkBeforeShutdown() {
         Log.d(TAG, "thread stop");
-        mRecorder.stop();
-        mRecorder.release();
+        if (mRecorder != null) {
+            if (mRecorder.getState() == AudioRecord.STATE_INITIALIZED)
+                mRecorder.stop();
+            else
+                Log.w(TAG, "The AudioRecord has not been initialized yet, skip the command AudioRecord.stop().");
+            mRecorder.release();
+        }
         try {
             if (f != null) {
                 f.close();
@@ -233,13 +266,13 @@ public class RecorderIO extends Thread {
         FileOutputStream out = null;
         long totalAudioLen = 0;
         long totalDataLen;
-        long longSampleRate = RECORDER_SAMPLERATE;
+        long longSampleRate = mSampleRate;
         int channels = 2;
         byte[] data = new byte[mBufferSize];
-        if (RECORDER_CHANNELS == AudioFormat.CHANNEL_IN_MONO)
+        if (mChannelConfig == AudioFormat.CHANNEL_IN_MONO)
             channels = 1;
 
-        long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * channels / 8;
+        long byteRate = RECORDER_BPP * mSampleRate * channels / 8;
         try
         {
             in = new FileInputStream(inFilename);

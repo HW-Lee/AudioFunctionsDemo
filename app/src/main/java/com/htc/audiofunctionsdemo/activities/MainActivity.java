@@ -138,9 +138,16 @@ public class MainActivity extends AppCompatActivity {
                         mSpectrumViewConfig.xmin = intent.getIntExtra("spt_xmin", -1);
                         mSpectrumViewConfig.xmax = intent.getIntExtra("spt_xmax", -1);
                         if (mRecordController != null)
-                            mRecordController.startwav(idx);
+                            mRecordController.startpcm(idx);
                         break;
                     case Constants.AudioIntentNames.INTENT_RECORD_START_24BIT:
+                        idx = intent.getIntExtra("idx", 0);
+                        mSignalViewConfig.xmin = intent.getIntExtra("sig_xmin", -1);
+                        mSignalViewConfig.xmax = intent.getIntExtra("sig_xmax", -1);
+                        mSpectrumViewConfig.xmin = intent.getIntExtra("spt_xmin", -1);
+                        mSpectrumViewConfig.xmax = intent.getIntExtra("spt_xmax", -1);
+                        if (mRecordController != null)
+                            mRecordController.startpcm24(idx);
                         break;
                     case Constants.AudioIntentNames.INTENT_RECORD_STOP:
                         idx = intent.getIntExtra("idx", 0);
@@ -223,15 +230,32 @@ public class MainActivity extends AppCompatActivity {
         RecorderIO.RecorderIOListener listener = new RecorderIO.RecorderIOListener() {
             @Override
             public void onDataRead(byte[] data, int bytesPerSample, int numChannels) {
-                short[] signal_int16 = new short[data.length/2];
-                ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(signal_int16);
-                double[] signal = new double[signal_int16.length];
-                for (int i = 0; i < signal.length; i++) {
-                    double v = (double) signal_int16[i] / Constants.AudioRecordConfig.NORMALIZATION_FACTOR;
-                    signal[i] = v;
+                double[] signal;
+                int samplingRate;
+                if (bytesPerSample == 2) {
+                    short[] signal_int16 = new short[data.length / 2];
+                    ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(signal_int16);
+                    signal = new double[signal_int16.length / numChannels];
+
+                    for (int i = 0; i < signal.length; i++) {
+                        double v = (double) signal_int16[i*numChannels] / Constants.AudioRecordConfig.NORMALIZATION_FACTOR;
+                        signal[i] = v;
+                    }
+                    samplingRate = Constants.AudioRecordConfig.SAMPLING_RATE;
+                } else {
+                    int ratio = Constants.AudioRecordConfig.SAMPLING_RATE_HD / Constants.AudioRecordConfig.SAMPLING_RATE;
+                    int[] signal_int32 = new int[data.length / 4];
+                    ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().get(signal_int32);
+                    signal = new double[signal_int32.length / (numChannels*ratio)];
+
+                    for (int i = 0; i < signal.length; i++) {
+                        double v = (double) signal_int32[i*numChannels*ratio] / Constants.AudioRecordConfig.NORMALIZATION_FACTOR_HD;
+                        signal[i] = v;
+                    }
+                    samplingRate = Constants.AudioRecordConfig.SAMPLING_RATE_HD / ratio;
                 }
                 double[] spectrum = FFT.transformAbs(signal);
-                updateDataView(signal, spectrum);
+                updateDataView(signal, spectrum, samplingRate);
             }
         };
 
@@ -267,8 +291,7 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) findViewById(id)).setText(text);
     }
 
-    private void updateDataView(double[] signal, double[] spectrum) {
-        int samplingRate = Constants.AudioRecordConfig.SAMPLING_RATE;
+    private void updateDataView(double[] signal, double[] spectrum, int samplingRate) {
         if (mSignalViewConfig.xmin < 0) mSignalViewConfig.xmin = 0;
         if (mSignalViewConfig.xmax < 0) mSignalViewConfig.xmax = (int) Math.round(1000.0 * signal.length / samplingRate);
         if (mSpectrumViewConfig.xmin < 0) mSpectrumViewConfig.xmin = 0;
