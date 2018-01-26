@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class WatchDog extends Thread {
 
     public final class HandlerChecker implements Runnable {
-        private final static String TAG = "HandlerChecker";
+        private final String TAG = Constants.packageTag("HandlerChecker");
         private final String mName;
         private final long mWaitMax;
         private boolean mCompleted;
@@ -125,7 +125,7 @@ public class WatchDog extends Thread {
         }
     }
 
-    private final static String TAG = "Watchdog";
+    private final static String TAG = Constants.packageTag("Watchdog");
     private static WatchDog watchdogIns;
     final private ArrayList<HandlerChecker> mHandlerCheckers = new ArrayList<>();
     private static final long DEFAULT_TIMEOUT = 6 * 1000;

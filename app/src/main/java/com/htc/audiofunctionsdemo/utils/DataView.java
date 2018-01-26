@@ -17,7 +17,7 @@ import java.util.Collection;
  */
 
 public class DataView extends View {
-    static final private String TAG = "DataView";
+    static final private String TAG = Constants.packageTag("DataView");
 
     private int mBgColor;
     private Paint mGridPaint;

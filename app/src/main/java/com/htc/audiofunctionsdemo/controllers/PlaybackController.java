@@ -8,6 +8,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.htc.audiofunctionsdemo.R;
+import com.htc.audiofunctionsdemo.utils.Constants;
 import com.htc.audiofunctionsdemo.utils.WatchDog;
 
 import java.io.File;
@@ -43,7 +44,8 @@ public class PlaybackController implements Controllable {
     }
 
     public class PlaybackControllerThread extends Thread implements WatchDog.Monitor {
-        private final static String TAG = "PlaybackControllerThread";
+        private final String TAG = Constants.packageTag("PlaybackControllerThread");
+
         // players
         int MAX_PLAYER = 4;
         int offlaod_player;
@@ -353,7 +355,7 @@ public class PlaybackController implements Controllable {
         }
     } // end class playback_thread
 
-    private static final String TAG = "PlaybackController";
+    private static final String TAG = Constants.packageTag("PlaybackController");
 
     private int idx;
     private boolean is_offload;

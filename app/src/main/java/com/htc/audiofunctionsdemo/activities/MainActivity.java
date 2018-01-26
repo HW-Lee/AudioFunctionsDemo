@@ -33,8 +33,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "AudioFunctionsDemo";
-    private static final String VERSION = "1.0.0";
+    private static final String TAG = Constants.packageTag("MainActivity");
+    private static final String VERSION = "1.1.0";
 
     private TextView mStateView;
     private DataView mSignalView;
@@ -139,15 +139,6 @@ public class MainActivity extends AppCompatActivity {
                         mSpectrumViewConfig.xmax = intent.getIntExtra("spt_xmax", -1);
                         if (mRecordController != null)
                             mRecordController.startpcm(idx);
-                        break;
-                    case Constants.AudioIntentNames.INTENT_RECORD_START_24BIT:
-                        idx = intent.getIntExtra("idx", 0);
-                        mSignalViewConfig.xmin = intent.getIntExtra("sig_xmin", -1);
-                        mSignalViewConfig.xmax = intent.getIntExtra("sig_xmax", -1);
-                        mSpectrumViewConfig.xmin = intent.getIntExtra("spt_xmin", -1);
-                        mSpectrumViewConfig.xmax = intent.getIntExtra("spt_xmax", -1);
-                        if (mRecordController != null)
-                            mRecordController.startpcm24(idx);
                         break;
                     case Constants.AudioIntentNames.INTENT_RECORD_STOP:
                         idx = intent.getIntExtra("idx", 0);

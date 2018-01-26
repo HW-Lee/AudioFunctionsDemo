@@ -16,7 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class RecorderIO extends Thread {
-    private static final String TAG = "RecorderIO";
+    private static final String TAG = Constants.packageTag("RecorderIO");
     private static final int RECORDER_BPP = 16;
 
     private int mSampleRate;

@@ -91,7 +91,7 @@ public class RecordController implements Controllable {
     }
 
     public class RecordControllerThread extends Thread implements WatchDog.Monitor {
-        private final static String TAG = "RecordControllerThread";
+        private final String TAG = Constants.packageTag("RecordControllerThread");
 
         int MAX_RECORDER = 3;
         private RecorderContainer[] mMediaRecorderContainer = null;
@@ -271,7 +271,7 @@ public class RecordController implements Controllable {
         }
     }// end record thread
 
-    final public static String TAG = "RecordController";
+    final public static String TAG = Constants.packageTag("RecordController");
 
     final private int CMD_NONE = 0;
     final private int CMD_START = 1;

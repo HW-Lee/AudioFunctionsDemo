@@ -8,6 +8,7 @@ import android.os.Environment;
  */
 
 public class Constants {
+    public static final String PACKAGE_NAME = "AudioFunctionsDemo";
     public static final String SDCARD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
     public static class AudioIntentNames {
@@ -18,7 +19,6 @@ public class Constants {
         public static final String INTENT_PLAYBACK_PAUSE_RESUME = "audio.htc.com.intent.playback.pause.resume";
 
         public static final String INTENT_RECORD_START = "audio.htc.com.intent.record.start";
-        public static final String INTENT_RECORD_START_24BIT = "audio.htc.com.intent.record.start24";
         public static final String INTENT_RECORD_STOP = "audio.htc.com.intent.record.stop";
 
         public static final String INTENT_VOIP_START = "audio.htc.com.intent.voip.start";
@@ -37,7 +37,6 @@ public class Constants {
                 INTENT_PLAYBACK_SEEK,
                 INTENT_PLAYBACK_PAUSE_RESUME,
                 INTENT_RECORD_START,
-                INTENT_RECORD_START_24BIT,
                 INTENT_RECORD_STOP,
                 INTENT_VOIP_START,
                 INTENT_VOIP_STOP,
@@ -90,5 +89,9 @@ public class Constants {
             public static final int OUTPUT_TONE_FREQ = 440;
             public static final int BUFFER_SIZE_MILLIS = 100;
         }
+    }
+
+    public static String packageTag(String tag) {
+        return PACKAGE_NAME + "::" + tag;
     }
 }

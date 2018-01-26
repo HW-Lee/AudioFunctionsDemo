@@ -16,7 +16,7 @@ import java.lang.ref.WeakReference;
 public class VOIPController implements Controllable {
 
     public class VOIPControllerThread extends Thread implements WatchDog.Monitor{
-        private final static String TAG = "VOIPControllerThread";
+        private final String TAG = Constants.packageTag("VOIPControllerThread");
         private final int SAMPLE_RATE = Constants.VOIPConfig.RX.SAMPLING_RATE;
         private final int STREAM_TYPE = AudioManager.STREAM_VOICE_CALL;
         private final int CHANNEL = Constants.VOIPConfig.RX.CHANNEL_CONFIG;
@@ -261,7 +261,7 @@ public class VOIPController implements Controllable {
         }
     }
 
-    private final static String TAG = "VOIPController";
+    private final static String TAG = Constants.packageTag("VOIPController");
     private AudioManager mAudioManager = null;
     public VOIPControllerThread thread;
 

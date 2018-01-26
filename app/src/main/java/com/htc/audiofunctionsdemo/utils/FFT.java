@@ -5,7 +5,7 @@ package com.htc.audiofunctionsdemo.utils;
  */
 
 public class FFT {
-    final static private String TAG = "FFT";
+    final static private String TAG = Constants.packageTag("FFT");
 
     static {
         System.loadLibrary("native-fft");
