@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference;
 public class RecordController implements Controllable {
 
     enum FORMAT {
-        FORMAT_16BIT, FORMAT_24BIT, FORMAT_WAV
+        FORMAT_16BIT, FORMAT_24BIT, FORMAT_PCM, FORMAT_PCM_24
     }
 
     private class RecorderContainer {
@@ -38,7 +38,10 @@ public class RecordController implements Controllable {
             if ((format == FORMAT.FORMAT_16BIT) || (format == FORMAT.FORMAT_24BIT))
                 recorder = new MediaRecorder();
             else {
-                recorderio = new RecorderIO(Constants.AudioRecordConfig.CIRCULAR_BUFFER_SIZE_MILLIS, Constants.AudioRecordConfig.BUFFER_SIZE_MILLIS);
+                boolean isHD = false;
+                if (format == FORMAT.FORMAT_PCM_24)
+                    isHD = true;
+                recorderio = new RecorderIO(Constants.AudioRecordConfig.CIRCULAR_BUFFER_SIZE_MILLIS, Constants.AudioRecordConfig.BUFFER_SIZE_MILLIS, isHD);
             }
         }
 
@@ -149,7 +152,7 @@ public class RecordController implements Controllable {
                 Log.d(TAG, "record start idx " + idx + " is using");
         }
 
-        private void _startwav(int idx) {
+        private void _startpcm(int idx, RecordController.FORMAT format) {
             String path;
             if (!mParent.ssrFileName.equals(""))
                 path = ssrFileName;
@@ -163,7 +166,7 @@ public class RecordController implements Controllable {
                 return;
             }
             if(mMediaRecorderContainer[idx] == null) {
-                mMediaRecorderContainer[idx] = new RecorderContainer(RecordController.FORMAT.FORMAT_WAV);
+                mMediaRecorderContainer[idx] = new RecorderContainer(format);
                 mMediaRecorderContainer[idx].recorderio.setRecorderIOListener(mParent.listenerCache);
 
                 Log.d(TAG, "record wav " + idx + " start");
@@ -202,7 +205,7 @@ public class RecordController implements Controllable {
                         mMediaRecorderContainer[idx].recorder.release();
                     }
                     mMediaRecorderContainer[idx] = null;
-                } else if (mMediaRecorderContainer[idx].format == RecordController.FORMAT.FORMAT_WAV) {
+                } else if (mMediaRecorderContainer[idx].format == RecordController.FORMAT.FORMAT_PCM || mMediaRecorderContainer[idx].format == RecordController.FORMAT.FORMAT_PCM_24) {
                     Log.d(TAG, "record wav " + idx + " stop");
                     mMediaRecorderContainer[idx].recorderio.stopRecord();
                     mMediaRecorderContainer[idx] = null;
@@ -249,8 +252,13 @@ public class RecordController implements Controllable {
                     case CMD_START:
                         this._start(idx);
                         break;
-                    case CMD_STARTWAV:
-                        this._startwav(idx);
+                    case CMD_STARTPCM:
+                        RecordController.FORMAT format;
+                        if (isHD)
+                            format = RecordController.FORMAT.FORMAT_PCM_24;
+                        else
+                            format = RecordController.FORMAT.FORMAT_PCM;
+                        this._startpcm(idx, format);
                         break;
                     case CMD_STOP:
                         this._stop(idx);
@@ -268,10 +276,11 @@ public class RecordController implements Controllable {
     final private int CMD_NONE = 0;
     final private int CMD_START = 1;
     final private int CMD_START24 = 2;
-    final private int CMD_STARTWAV = 3;
+    final private int CMD_STARTPCM = 3;
     final private int CMD_STOP = 4;
     private int command;
     private int idx;
+    private boolean isHD;
     public RecordControllerThread thread;
     private String ssrFileName;
     private Handler commHandler;
@@ -303,10 +312,19 @@ public class RecordController implements Controllable {
         }
     }
 
-    public void startwav(int idx) {
+    public void startpcm24(int idx) {
         synchronized (this) { // class RecordController lock
             this.idx = idx;
-            command = CMD_STARTWAV;
+            this.isHD = true;
+            command = CMD_STARTPCM;
+        }
+    }
+
+    public void startpcm(int idx) {
+        synchronized (this) { // class RecordController lock
+            this.idx = idx;
+            this.isHD = false;
+            command = CMD_STARTPCM;
         }
     }
 
@@ -314,7 +332,7 @@ public class RecordController implements Controllable {
         synchronized (this) { // class RecordController lock
             this.idx = idx;
             ssrFileName = name;
-            command = CMD_STARTWAV;
+            command = CMD_STARTPCM;
         }
     }
 

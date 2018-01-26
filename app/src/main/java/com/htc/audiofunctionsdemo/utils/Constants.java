@@ -59,6 +59,14 @@ public class Constants {
         public static final int BUFFER_SIZE_MILLIS = 100;
         public static final String DETECTED_TONE_FREQ_PROP = "audio.htc.com.prop.detected.freq";
         public static final String DETECTED_TONE_AMP_PROP = "audio.htc.com.prop.detected.amp";
+
+        public static final int SAMPLING_RATE_HD = 96000;
+        public static final int CHANNEL_CONFIG_HD = AudioFormat.CHANNEL_IN_STEREO;
+        public static final int NUM_CHANNELS_HD = 2;
+        public static final int ENCODING_CONFIG_HD = 15;
+        public static final int NORMALIZATION_FACTOR_HD = 8388608;
+        public static final int BYTES_PER_ELEMENT_HD = 4;
+
     }
     public static class VOIPConfig {
         public static class TX {
