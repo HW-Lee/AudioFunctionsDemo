@@ -14,6 +14,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.htc.audiofunctionsdemo.R;
@@ -34,8 +39,11 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = Constants.packageTag("MainActivity");
-    private static final String VERSION = "1.1.0";
+    private static final String VERSION = "1.2.0";
 
+    private Spinner mIntentSpinner;
+    private Button mSendBtn;
+    private String mCurrentIntentName;
     private TextView mStateView;
     private DataView mSignalView;
     private DataViewConfig mSignalViewConfig;
@@ -267,6 +275,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void initUI() {
         ((TextView) findViewById(R.id.app_info)).setText("MS Audio Functions Demo (ver." + VERSION + "_" + FFT.getVersion() + ") ");
+        mIntentSpinner = (Spinner) findViewById(R.id.intent_list);
+        mSendBtn = (Button) findViewById(R.id.send_intent_btn);
         mStateView = (TextView) findViewById(R.id.current_state);
         mSignalView = (DataView) findViewById(R.id.signal_view);
         mSpectrumView = (DataView) findViewById(R.id.spectrum_view);
@@ -276,6 +286,43 @@ public class MainActivity extends AppCompatActivity {
         mSignalView.setGridSlotsY(4);
         mSignalView.setGridSlotsX(10);
         mSpectrumView.setGridSlotsX(10);
+
+        mSendBtn.setText("Send");
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this,
+                android.R.layout.simple_spinner_item, Constants.AudioIntentNames.INTENT_NAMES);
+        mIntentSpinner.setAdapter(adapter);
+        mIntentSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mCurrentIntentName = Constants.AudioIntentNames.INTENT_NAMES[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mCurrentIntentName = null;
+            }
+        });
+        mSendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCurrentIntentName == null)
+                    return;
+
+                Intent intent = new Intent();
+
+                switch (mCurrentIntentName) {
+                    case Constants.AudioIntentNames.INTENT_PLAYBACK_START_NONOFFLOAD:
+                        intent.putExtra("file", "440Hz.wav");
+                        break;
+                    case Constants.AudioIntentNames.INTENT_PLAYBACK_START_OFFLOAD:
+                        intent.putExtra("file", "440Hz.mp3");
+                        break;
+                }
+
+                intent.setAction(mCurrentIntentName);
+                sendBroadcast(intent);
+            }
+        });
     }
 
     private void updateTextView(final int id, String text) {
