@@ -312,10 +312,10 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (mCurrentIntentName) {
                     case Constants.AudioIntentNames.INTENT_PLAYBACK_START_NONOFFLOAD:
-                        intent.putExtra("file", "440Hz.wav");
+                        intent.putExtra("file", "440Hz_wav.wav");
                         break;
                     case Constants.AudioIntentNames.INTENT_PLAYBACK_START_OFFLOAD:
-                        intent.putExtra("file", "440Hz.mp3");
+                        intent.putExtra("file", "440Hz_mp3.mp3");
                         break;
                 }
 
