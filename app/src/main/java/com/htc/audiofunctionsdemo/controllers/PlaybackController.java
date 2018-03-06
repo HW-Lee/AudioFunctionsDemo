@@ -137,14 +137,6 @@ public class PlaybackController implements Controllable {
             msg.obj += function + "[" + "playback idx " + idx + " offload " + is_offload + " file: " + playbackFile.getAbsolutePath() + "]";
             msg.sendToTarget();
 
-            synchronized (this.wd_lock) {
-                int maxStream = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                int streamVol = 15;
-                if (streamVol > maxStream)
-                    streamVol = maxStream;
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, streamVol, 0);
-            }
-
             synchronized (mParent) {
                 mPlayerContainer[idx] = new PlayerContainer(this);
             }
