@@ -28,6 +28,7 @@ public class Constants {
 
         public static final String INTENT_LOG_PRINT = "audio.htc.com.intent.log.print";
         public static final String INTENT_PRINT_PROPERTIES = "audio.htc.com.intent.print.properties";
+        public static final String INTENT_KEEP_PRINTING_PROPERTIES = "audio.htc.com.intent.print.properties.enable";
         public static final String INTENT_DATA_VIEW_SETTINGS = "audio.htc.com.intent.dataview";
 
         public static final String[] INTENT_NAMES = {
@@ -44,6 +45,7 @@ public class Constants {
                 INTENT_VOIP_SWITCH_SPKR,
                 INTENT_LOG_PRINT,
                 INTENT_PRINT_PROPERTIES,
+                INTENT_KEEP_PRINTING_PROPERTIES,
                 INTENT_DATA_VIEW_SETTINGS
         };
     }
@@ -55,9 +57,10 @@ public class Constants {
         public static final int NORMALIZATION_FACTOR = 32768;
         public static final int BYTES_PER_ELEMENT = 2; // 2 bytes in 16bit format
         public static final int CIRCULAR_BUFFER_SIZE_MILLIS = 5000;
-        public static final int BUFFER_SIZE_MILLIS = 100;
+        public static final int BUFFER_SIZE_MILLIS = 40;
         public static final String DETECTED_TONE_FREQ_PROP = "audio.htc.com.prop.detected.freq";
         public static final String DETECTED_TONE_AMP_PROP = "audio.htc.com.prop.detected.amp";
+        public static final String PROP_FILE_PATH = SDCARD_PATH + "/" + PACKAGE_NAME + "-record-prop.txt";
 
         public static final int SAMPLING_RATE_HD = 96000;
         public static final int CHANNEL_CONFIG_HD = AudioFormat.CHANNEL_IN_STEREO;

@@ -32,6 +32,7 @@ import com.htc.audiofunctionsdemo.utils.FFT;
 import com.htc.audiofunctionsdemo.utils.RecorderIO;
 import com.htc.audiofunctionsdemo.utils.WatchDog;
 
+import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -39,7 +40,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = Constants.packageTag("MainActivity");
-    private static final String VERSION = "1.2.0";
+    private static final String VERSION = "1.3.0";
 
     private Spinner mIntentSpinner;
     private Button mSendBtn;
@@ -49,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private DataViewConfig mSignalViewConfig;
     private DataView mSpectrumView;
     private DataViewConfig mSpectrumViewConfig;
+
+    private boolean printProperties = false;
 
     private class DataViewConfig {
         int xmin = -1;
@@ -209,6 +212,9 @@ public class MainActivity extends AppCompatActivity {
                         logtext += System.getProperty(Constants.AudioRecordConfig.DETECTED_TONE_AMP_PROP);
                         Log.i(TAG + "::properties", logtext);
                         break;
+                    case Constants.AudioIntentNames.INTENT_KEEP_PRINTING_PROPERTIES:
+                        printProperties = intent.getBooleanExtra("v", false);
+                        break;
                     case Constants.AudioIntentNames.INTENT_DATA_VIEW_SETTINGS:
                         boolean refresh = intent.getBooleanExtra("refresh", true);
                         mSignalViewConfig.needRefreshed = refresh;
@@ -367,6 +373,29 @@ public class MainActivity extends AppCompatActivity {
         detectedFreq = Math.round(detectedFreq * 100) / 100.0;
         double detectedAmp = 20*Math.log10(maxValue);
         detectedAmp = Math.round(detectedAmp * 100) / 100.0;
+
+        double lastDetectedFreq;
+        try {
+            lastDetectedFreq = Double.valueOf(System.getProperty(Constants.AudioRecordConfig.DETECTED_TONE_FREQ_PROP));
+        } catch (Exception e) {
+            lastDetectedFreq = -1;
+        }
+        if (printProperties && lastDetectedFreq != detectedFreq) {
+            Log.i(TAG + "::properties", detectedFreq + "," + detectedAmp);
+        }
+
+        try {
+            PrintWriter pw = new PrintWriter(Constants.AudioRecordConfig.PROP_FILE_PATH);
+            pw.write(detectedFreq + "," + detectedAmp + "\n");
+            pw.close();
+            if (lastDetectedFreq != detectedFreq) {
+                Log.i(TAG, "the detected frequency has been changed to " + detectedFreq);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "write the file \"" + Constants.AudioRecordConfig.PROP_FILE_PATH + "\" failed.");
+            e.printStackTrace();
+        }
+
         System.setProperty(Constants.AudioRecordConfig.DETECTED_TONE_FREQ_PROP, "" + detectedFreq);
         System.setProperty(Constants.AudioRecordConfig.DETECTED_TONE_AMP_PROP, "" + detectedAmp);
 
