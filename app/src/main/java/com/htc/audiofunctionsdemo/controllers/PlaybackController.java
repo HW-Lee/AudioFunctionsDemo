@@ -55,11 +55,6 @@ public class PlaybackController implements Controllable {
         private String fileExtensions[] = {".wav", ".mp3"};
         private final int NONOFFLOADFILE = 0;
         private final int OFFLOADFILE = 1;
-        private String[][] fileList = {{"1100_3100_tone", "1150_3150_tone", "1200_3200_tone", "1250_3250_tone", "1300_3300_tone"},
-                {"1350_3350_tone", "1400_3400_tone", "1450_3450_tone", "1500_3500_tone", "1550_3550_tone"},
-                {"1600_3600_tone", "1650_3650_tone", "1700_3700_tone", "1750_3750_tone", "1800_3800_tone"},
-                {"1850_3850_tone", "1900_3900_tone", "1950_3950_tone", "2050_4050_tone", "2100_4100_tone"},
-                {"2150_4150_tone", "2200_4200_tone", "2250_4250_tone", "2300_4300_tone", "2350_4350_tone"}};
 
         AudioManager mAudioManager;
         final PlaybackController mParent;
@@ -79,23 +74,8 @@ public class PlaybackController implements Controllable {
             offlaod_player = -1;
         }
 
-        String getFileName(int idx, boolean is_offload) {
-            int shift;
-            String file_name;
-            int mDevNumber;
-
-            mDevNumber = 0;
-            Log.d(TAG, "device number: " + mDevNumber);
-            if (is_offload && offlaod_player == -1) {
-                offlaod_player = idx;
-                file_name = fileList[mDevNumber][idx] + fileExtensions[OFFLOADFILE];
-            } else
-                file_name = fileList[mDevNumber][idx] + fileExtensions[NONOFFLOADFILE];
-            return file_name;
-        }
-
         private void _start(int idx, boolean is_offload) {
-            String file_name;
+            String file_name = mParent.ssrFileName;
             final String function = "start";
 
             Message msg = commHandler.obtainMessage();
@@ -103,11 +83,6 @@ public class PlaybackController implements Controllable {
             msg.obj = "State: ";
             msg.obj += function + "++";
             msg.sendToTarget();
-
-            if (!mParent.ssrFileName.equals(""))
-                file_name = mParent.ssrFileName;
-            else
-                file_name = getFileName(idx, is_offload);
 
             if (idx < 0 || idx >= MAX_PLAYER) {
                 Log.d(TAG, "playback error: invalid index for playback " + idx);

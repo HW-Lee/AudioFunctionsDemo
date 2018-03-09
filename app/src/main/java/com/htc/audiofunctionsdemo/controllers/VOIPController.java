@@ -33,8 +33,6 @@ public class VOIPController implements Controllable {
         private AudioTrack mAudioTrack = null;
         private RecorderIO rec = null;
 
-        Handler mRecordIOErrorHandle = new VOIPControllerThreadHandler(this);
-
         private int mPhoneMode;
         final private VOIPController mParent;
         final private VOIPControllerThread wd_lock;
@@ -69,9 +67,9 @@ public class VOIPController implements Controllable {
             }
 
             synchronized(this.wd_lock) {
-                rec = new RecorderIO(Constants.VOIPConfig.TX.CIRCULAR_BUFFER_SIZE_MILLIS, Constants.VOIPConfig.TX.BUFFER_SIZE_MILLIS);
+                rec = new RecorderIO(Constants.VOIPConfig.TX.BUFFER_SIZE_MILLIS);
                 rec.setRecorderIOListener(listenerCache);
-                rec.startRecord(path, mRecordIOErrorHandle);
+                rec.startRecord();
             }
 
             sampleNum = 0;
@@ -187,10 +185,6 @@ public class VOIPController implements Controllable {
             }
         }
 
-        void _transTxToWav() {
-            rec.transTxToWav();
-        }
-
         private void setStop() {
             if (this.isAlive()){
                 this.interrupt();
@@ -223,9 +217,6 @@ public class VOIPController implements Controllable {
                     case CMD_MUTE_RX:
                         this._muteRx();
                         break;
-                    case CMD_TX_TO_WAV:
-                        this._transTxToWav();
-                        break;
                     case CMD_STOP:
                         this._stop();
                         break;
@@ -238,29 +229,6 @@ public class VOIPController implements Controllable {
         }
     } // end class voip_thread
 
-    private static class VOIPControllerThreadHandler extends Handler {
-        private WeakReference<VOIPControllerThread> mThreadRef;
-
-        VOIPControllerThreadHandler(VOIPControllerThread th) {
-            mThreadRef = new WeakReference<>(th);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            VOIPControllerThread th = mThreadRef.get();
-            if (th != null) {
-                if (msg.what == 1) {
-                    // means recorderIO has error
-                    if (th.rec.excep != null)
-                        th.mParent.e = th.rec.excep;
-                    if (th.rec.errorMsg != null)
-                        th.mParent.errorMsg = th.rec.errorMsg;
-                }
-            }
-            super.handleMessage(msg);
-        }
-    }
-
     private final static String TAG = Constants.packageTag("VOIPController");
     private AudioManager mAudioManager = null;
     public VOIPControllerThread thread;
@@ -268,13 +236,11 @@ public class VOIPController implements Controllable {
     Exception e = null;
     String errorMsg = "";
 
-    private String path;
     final private int CMD_NONE = 0;
     final private int CMD_START = 1;
     final private int CMD_STOP = 2;
     final private int CMD_MUTE_RX = 3;
-    final private int CMD_TX_TO_WAV = 4;
-    final private int CMD_SWITCH_SPKR = 5;
+    final private int CMD_SWITCH_SPKR = 4;
     private int command;
     private boolean mute;
     private boolean useSpeaker = false;
@@ -288,7 +254,6 @@ public class VOIPController implements Controllable {
         /*init thread*/
         command = CMD_NONE;
         mute = false;
-        path = "";
         thread = new VOIPControllerThread(m, this);
         thread.start();
     }
@@ -296,14 +261,6 @@ public class VOIPController implements Controllable {
     public void start() {
         //start_name("sdcard/Music/record_voip");
         synchronized (this) { // class VOIP lock
-            path = Constants.VOIPConfig.TX.PCM_DUMP_FILENAME;
-            command = CMD_START;
-        }
-    }
-
-    public void start_name(String name) {
-        synchronized (this) { // class VOIP lock
-            path = name;
             command = CMD_START;
         }
     }
@@ -328,29 +285,8 @@ public class VOIPController implements Controllable {
         }
     }
 
-    public void transTxToWav() {
-        synchronized (this) { // class VOIP lock
-            command = CMD_TX_TO_WAV;
-        }
-    }
-
-    public void deleteFile() {
-        if (path.equals("")) {
-            path = Constants.VOIPConfig.TX.PCM_DUMP_FILENAME;
-            File file = new File(path);
-            file.delete();
-        }
-    }
-
     public int getPhonemode(){
         return mAudioManager.getMode();
-    }
-
-    public void clearError() {
-        if (e != null) {
-            e = null;
-            stop();
-        }
     }
 
     public void setRecorderIOListener(RecorderIO.RecorderIOListener listener) {
