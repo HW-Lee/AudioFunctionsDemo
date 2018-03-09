@@ -26,6 +26,7 @@ import com.htc.audiofunctionsdemo.controllers.Controllable;
 import com.htc.audiofunctionsdemo.controllers.PlaybackController;
 import com.htc.audiofunctionsdemo.controllers.RecordController;
 import com.htc.audiofunctionsdemo.controllers.VOIPController;
+import com.htc.audiofunctionsdemo.utils.AudioSignalFrameLogger;
 import com.htc.audiofunctionsdemo.utils.Constants;
 import com.htc.audiofunctionsdemo.utils.DataView;
 import com.htc.audiofunctionsdemo.utils.FFT;
@@ -40,7 +41,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = Constants.packageTag("MainActivity");
-    private static final String VERSION = "1.3.1";
+    private static final String VERSION = "1.3.2";
 
     private Spinner mIntentSpinner;
     private Button mSendBtn;
@@ -50,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private DataViewConfig mSignalViewConfig;
     private DataView mSpectrumView;
     private DataViewConfig mSpectrumViewConfig;
+
+    private AudioSignalFrameLogger mSignalLogger;
 
     private boolean printProperties = false;
 
@@ -143,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case Constants.AudioIntentNames.INTENT_RECORD_START:
+                        mSignalLogger.clear();
                         idx = intent.getIntExtra("idx", 0);
                         mSignalViewConfig.xmin = intent.getIntExtra("sig_xmin", -1);
                         mSignalViewConfig.xmax = intent.getIntExtra("sig_xmax", -1);
@@ -155,6 +159,10 @@ public class MainActivity extends AppCompatActivity {
                         idx = intent.getIntExtra("idx", 0);
                         if (mRecordController != null)
                             mRecordController.stop(idx);
+                        break;
+                    case Constants.AudioIntentNames.INTENT_RECORD_DUMP_BUFFER:
+                        String path = intent.getStringExtra("path");
+                        mSignalLogger.dumpTo(path);
                         break;
 
                     case Constants.AudioIntentNames.INTENT_VOIP_START:
@@ -274,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
         mVOIPController.setRecorderIOListener(listener);
         mControllers.add(new WeakReference<Controllable>(mVOIPController));
 
+        mSignalLogger = new AudioSignalFrameLogger();
+
         mWatchDog.addMonitor("Class.PlaybackController", mPlaybackController.thread);
         mWatchDog.addMonitor("Class.RecordController", mRecordController.thread);
         mWatchDog.addMonitor("Class.VOIPController", mVOIPController.thread);
@@ -336,6 +346,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateDataView(double[] signal, double[] spectrum, int samplingRate) {
+        mSignalLogger.push("signal", samplingRate, signal);
+        mSignalLogger.push("spectrum", spectrum);
+
         if (mSignalViewConfig.xmin < 0) mSignalViewConfig.xmin = 0;
         if (mSignalViewConfig.xmax < 0) mSignalViewConfig.xmax = (int) Math.round(1000.0 * signal.length / samplingRate);
         if (mSpectrumViewConfig.xmin < 0) mSpectrumViewConfig.xmin = 0;
