@@ -20,6 +20,7 @@ public class Constants {
 
         public static final String INTENT_RECORD_START = "audio.htc.com.intent.record.start";
         public static final String INTENT_RECORD_STOP = "audio.htc.com.intent.record.stop";
+        public static final String INTENT_RECORD_DUMP_BUFFER = "audio.htc.com.intent.record.dump";
 
         public static final String INTENT_VOIP_START = "audio.htc.com.intent.voip.start";
         public static final String INTENT_VOIP_STOP = "audio.htc.com.intent.voip.stop";
@@ -39,6 +40,7 @@ public class Constants {
                 INTENT_PLAYBACK_PAUSE_RESUME,
                 INTENT_RECORD_START,
                 INTENT_RECORD_STOP,
+                INTENT_RECORD_DUMP_BUFFER,
                 INTENT_VOIP_START,
                 INTENT_VOIP_STOP,
                 INTENT_VOIP_MUTE_OUTPUT,
