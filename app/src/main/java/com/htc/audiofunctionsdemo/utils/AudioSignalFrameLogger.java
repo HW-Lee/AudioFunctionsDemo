@@ -37,7 +37,7 @@ public class AudioSignalFrameLogger {
             mName = name;
             mFs = fs;
             mValues = Arrays.copyOf(value, value.length);
-            createAt = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss.SSS '(UTF+8)'", Locale.TAIWAN).format(Calendar.getInstance().getTime());
+            createAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS '(UTF+8)'", Locale.TAIWAN).format(Calendar.getInstance().getTime());
         }
 
         public String getCreateAt() {
