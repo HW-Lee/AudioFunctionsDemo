@@ -1,0 +1,44 @@
+# Parse Configuration
+# The record dump starts at "2018-03-14 15:21:00.084 (UTF+8)"
+# Dump information:
+#     - sampling frequency  : 8000.0 Hz
+#     - pcm dump duration   : 48.644 sec.
+#     - record buffer length: 40.0 ms.
+# Description of the fields:
+#     - pcm     : the pcm dump (.wav) from the timestamp after the offset
+#        - "from" and "to" are the signal range configuration for the output audio file with respect to sec.
+#     - signal  : the signal waveform (.png) from the timestamp after the offset
+#        - x-axis refers to the time index with respect to sec.
+#        - y-axis refers to the amplitude
+#     - spectrogram: the spectrogram (.png) from the timestamp after the offset
+#        - x-axis refers to the frame index with respect to a 40.0ms-length signal frame
+#        - y-axis refers to the frequency with respect to Hz
+
+{
+    "spectrogram": {
+        "ylim": [
+            -7.8125, 
+            3992.1875
+        ], 
+        "xlim": [
+            -0.5, 
+            1216.5
+        ]
+    }, 
+    "signal": {
+        "horiz_extent_ratio": 1.0, 
+        "ylim": [
+            -0.902198275862069, 
+            0.9858189655172414
+        ], 
+        "xlim": [
+            -2.43219375, 
+            51.076068750000005
+        ]
+    }, 
+    "version": "1.0.0", 
+    "pcm": {
+        "to": 48.644, 
+        "from": 0
+    }
+}
