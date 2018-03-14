@@ -18,22 +18,27 @@ INFO_FILE = "info.json"
 BIN_FILE = "stream.bin"
 CONFIG_FILE = "parse_config.json"
 
-PARSE_CONFIG_STR = \
-"# Parse Configuration\n" + \
-"# The record dump starts at \"{}\"\n" + \
-"# Dump information:\n" + \
-"#     - sampling frequency  : {} Hz\n" + \
-"#     - pcm dump duration   : {} sec.\n" + \
-"#     - record buffer length: {} ms.\n" + \
-"# Description of the fields:\n" + \
-"#     - pcm     : the pcm dump (.wav) from the timestamp after the offset\n" + \
-"#        - \"from\" and \"to\" are the signal range configuration for the output audio file with respect to sec.\n" + \
-"#     - signal  : the signal waveform (.png) from the timestamp after the offset\n" + \
-"#        - x-axis refers to the time index with respect to sec.\n" + \
-"#        - y-axis refers to the amplitude\n" + \
-"#     - spectrogram: the spectrogram (.png) from the timestamp after the offset\n" + \
-"#        - x-axis refers to the frame index with respect to a {}ms-length signal frame\n" + \
-"#        - y-axis refers to the frequency with respect to Hz\n\n"
+PARSE_CONFIG_STR = [
+    "# Parse Configuration",
+    "# The record dump starts at \"{}\"",
+    "# Dump information:",
+    "#     - sampling frequency  : {} Hz",
+    "#     - pcm dump duration   : {} sec.",
+    "#     - record buffer length: {} ms.",
+    "# Description of the fields:",
+    "#     - pcm     : the pcm dump (.wav) from the timestamp after the offset",
+    "#        - \"from\" and \"to\" are the signal range configuration for the output audio file with respect to sec.",
+    "#     - signal  : the signal waveform (.png) from the timestamp after the offset",
+    "#        - x-axis refers to the time index with respect to sec.",
+    "#        - y-axis refers to the amplitude",
+    "#     - spectrogram: the spectrogram (.png) from the timestamp after the offset",
+    "#        - x-axis refers to the frame index with respect to a {}ms-length signal frame",
+    "#        - y-axis refers to the frequency with respect to Hz",
+    "\n"
+]
+
+NHEADER_LINES = len(PARSE_CONFIG_STR)
+PARSE_CONFIG_STR = "\n".join(PARSE_CONFIG_STR)
 
 class AudioSignalFrame(object):
     def __init__(self, info):
@@ -52,7 +57,7 @@ def main(dir_name):
         with open("{}{}{}".format(dir_name, SEP, CONFIG_FILE), "r") as f:
             try:
                 lines = f.readlines()
-                parse_config = json.loads("".join(lines[16:]))
+                parse_config = json.loads("".join(lines[NHEADER_LINES:]))
             except Exception as e:
                 parse_config = {}
 
