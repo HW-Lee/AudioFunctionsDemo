@@ -14,6 +14,7 @@ if platform.system() == "Windows":
 else:
     SEP = "/"
 
+VERSION = "1.0.0"
 INFO_FILE = "info.json"
 BIN_FILE = "stream.bin"
 CONFIG_FILE = "parse_config.json"
@@ -61,6 +62,12 @@ def main(dir_name):
             except Exception as e:
                 parse_config = {}
 
+    if "version" in parse_config.keys() and parse_config["version"] == VERSION:
+        force_update = False
+    else:
+        force_update = True
+        parse_config["version"] = VERSION
+
     with open("{}{}{}".format(dir_name, SEP, INFO_FILE), "r") as f:
         info = json.load(f)
         frames = map(AudioSignalFrame, info)
@@ -104,7 +111,7 @@ def main(dir_name):
     signal = np.where(signal > -9, signal, 0)
 
     signal = signal / np.max(np.abs(signal)) * 0.9
-    if "pcm" in parse_config.keys():
+    if "pcm" in parse_config.keys() and not force_update:
         pcmrange = np.array([parse_config["pcm"]["from"], parse_config["pcm"]["to"]])
         pcmrange = np.round(pcmrange*fs)
         pcmrange[0] = np.max([pcmrange[0], 0])
@@ -121,19 +128,24 @@ def main(dir_name):
 
     xx = np.arange(len(signal))/fs
     plt.plot(xx, signal)
-    plt.plot(missingxx/fs, [0]*len(missingxx), "r.", markersize=0.1)
-    plt.legend(["signal", "missing frames"])
-    if "signal" in parse_config.keys():
+
+    if "signal" in parse_config.keys() and not force_update:
         plt.xlim(parse_config["signal"]["xlim"])
         plt.ylim(parse_config["signal"]["ylim"])
     else:
         parse_config["signal"] = {
             "xlim": plt.gca().get_xlim(),
-            "ylim": plt.gca().get_ylim()
+            "ylim": plt.gca().get_ylim(),
+            "horiz_extent_ratio": 1.0
         }
 
     xlim = parse_config["signal"]["xlim"]
-    plt.gcf().set_size_inches([xlim[1]-xlim[0], 3])
+    horiz_extent_ratio = parse_config["signal"]["horiz_extent_ratio"]
+
+    plt.plot(missingxx/fs, [0]*len(missingxx), "r.", markersize=0.02*horiz_extent_ratio)
+    plt.legend(["signal", "missing frames"])
+
+    plt.gcf().set_size_inches([(xlim[1]-xlim[0])*horiz_extent_ratio, 3])
     plt.savefig("{}{}signal.png".format(dir_name, SEP), bbox_inches="tight", pad_inches=0, dpi=300)
     plt.gcf().clear()
 
@@ -176,7 +188,7 @@ def main(dir_name):
     plt.gca().set_ylabel("frequency (Hz)")
     plt.gca().set_xlabel("frame index ({} ms/frame)".format(recbufsize_ms))
 
-    if "spectrogram" in parse_config.keys():
+    if "spectrogram" in parse_config.keys() and not force_update:
         plt.xlim(parse_config["spectrogram"]["xlim"])
         plt.ylim(np.array(parse_config["spectrogram"]["ylim"]) * 2.0/fs * spectrogram.shape[0])
     else:

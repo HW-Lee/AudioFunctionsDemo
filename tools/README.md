@@ -62,10 +62,10 @@ Then four files are generated, namely the parse configuration, the signal wavefo
 ### `parse_config.json`
 ```json
 # Parse Configuration
-# The record dump starts at "2018-03-12 11:10:19.036 (UTF+8)"
+# The record dump starts at "2018-03-14 15:21:00.084 (UTF+8)"
 # Dump information:
 #     - sampling frequency  : 8000.0 Hz
-#     - pcm dump duration   : 6.32 sec.
+#     - pcm dump duration   : 48.644 sec.
 #     - record buffer length: 40.0 ms.
 # Description of the fields:
 #     - pcm     : the pcm dump (.wav) from the timestamp after the offset
@@ -85,21 +85,23 @@ Then four files are generated, namely the parse configuration, the signal wavefo
         ], 
         "xlim": [
             -0.5, 
-            157.5
+            1216.5
         ]
     }, 
     "signal": {
+        "horiz_extent_ratio": 1.0, 
         "ylim": [
-            -0.9340355329949239, 
-            0.9873350253807107
+            -0.902198275862069, 
+            0.9858189655172414
         ], 
         "xlim": [
-            -0.31599375, 
-            6.635868749999999
+            -2.43219375, 
+            51.076068750000005
         ]
     }, 
+    "version": "1.0.0", 
     "pcm": {
-        "to": 6.32, 
+        "to": 48.644, 
         "from": 0
     }
 }
