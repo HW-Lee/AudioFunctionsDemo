@@ -7,7 +7,7 @@ import platform
 
 import numpy as np
 import matplotlib.pyplot as plt
-from librosa.output import write_wav as wavwrite
+from scipy.io.wavfile import write as wavwrite
 
 if platform.system() == "Windows":
     SEP = "\\"
@@ -124,7 +124,8 @@ def main(dir_name):
             "to": len(signal)*1.0/fs
         }
 
-    wavwrite("{}{}pcmdump.wav".format(dir_name, SEP), signal[pcmrange[0]:pcmrange[1]], fs)
+    signal16 = np.array(signal[pcmrange[0]:pcmrange[1]] * (2**15-1), dtype=np.int16)
+    wavwrite("{}{}pcmdump.wav".format(dir_name, SEP), fs, signal16)
 
     xx = np.arange(len(signal))/fs
     plt.plot(xx, signal)
@@ -150,21 +151,28 @@ def main(dir_name):
     plt.gcf().clear()
 
     # Processing the spectrogram packet
-    first_frame = filter(lambda x: x.name == "spectrum", frames)[0]
-    last_frame = filter(lambda x: x.name == "spectrum", frames)[-1]
+    spectrum_frames = filter(lambda x: x.name == "spectrum", frames)
+    first_frame = spectrum_frames[0]
+    last_frame = spectrum_frames[-1]
     log_starts_timestamp = first_frame.create_at
     log_ends_timestamp = last_frame.create_at
 
-    spectrogram = -10 * np.ones([first_frame.datasize, int(np.ceil(duration*1000.0/recbufsize_ms))])
+    num_frames = max([int(np.ceil(duration*1000.0/recbufsize_ms)), len(spectrum_frames)])
+    spectrogram = -10 * np.ones([first_frame.datasize, num_frames+1])
 
-    for spectrum_frame in filter(lambda x: x.name == "spectrum", frames):
-        offset_sec = diff_sec(log_starts_timestamp, spectrum_frame.create_at)
-        offset = int(np.round(offset_sec*1000.0/recbufsize_ms))
+    temp = None
+    offset = 0
+    for spectrum_frame in spectrum_frames:
+        if temp:
+            diff = diff_sec(temp.create_at, spectrum_frame.create_at)
+            offset += int(np.round(diff*1000.0/recbufsize_ms))
+        temp = spectrum_frame
+
         if spectrogram[0, offset] > -9:
             offset += 1
         spectrogram[:, offset] = np.array(spectrum_frame.data)
 
-    spectrogram = spectrogram[:spectrogram.shape[0]/2, :]
+    spectrogram = spectrogram[:spectrogram.shape[0]/2, :offset+1]
 
     alpha_mask = np.array(spectrogram)
     alpha_mask = np.where(alpha_mask < -9, alpha_mask, 0)
@@ -179,9 +187,10 @@ def main(dir_name):
     spectrogram = 20 * np.log10(spectrogram)
 
 
-    plt.imshow(spectrogram, vmax=np.max(spectrogram), vmin=np.max(spectrogram)-40, cmap="gray", origin="lower")
+    plt.imshow(spectrogram, vmax=np.max(spectrogram), vmin=np.max(spectrogram)-40, \
+        cmap="gray", origin="lower", interpolation="nearest")
     plt.colorbar()
-    plt.imshow(mask, origin="lower")
+    plt.imshow(mask, origin="lower", interpolation="nearest")
     ticks = plt.gca().get_yticks()*1.0/spectrogram.shape[0] * fs/2.0
     ticks = np.array(np.round(ticks), dtype=int)
     plt.gca().set_yticklabels(ticks)
@@ -198,7 +207,6 @@ def main(dir_name):
         }
 
     xlim = parse_config["spectrogram"]["xlim"]
-    plt.gcf().set_size_inches([(xlim[1]-xlim[0])*recbufsize_ms/1000.0, 3])
     plt.savefig("{}{}spectrogram.png".format(dir_name, SEP), bbox_inches="tight", pad_inches=0, dpi=300)
     plt.gcf().clear()
 
